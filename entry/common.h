@@ -29,6 +29,10 @@ void staticLoggerFree();
 int procEventInit();
 void procEventFree();
 
+extern struct engine staticEngine;
+void staticEngineInit();
+void staticEngineFree();
+
 #endif
 
 

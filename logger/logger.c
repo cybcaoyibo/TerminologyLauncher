@@ -47,7 +47,7 @@ void loggerLog(logger *this, uint8_t level, string *msg) {
 	time_t stamp = time(0);
 	struct tm info; memset(&info, 0, sizeof(info));
 	localtime_r(&stamp, &info);
-	stringAppendF(&str, "[%04d-%02d-%02d %02d:%02d:%02d][%" PRIu32 "][%s]: ", info.tm_year, info.tm_mon, info.tm_mday, info.tm_hour, info.tm_min, info.tm_sec, GetCurrentThreadId(), (level >= nLvlStrs) ? "UNKNOWN" : lvlStrs[level]);
+	stringAppendF(&str, "[%04d-%02d-%02d %02d:%02d:%02d] [%" PRIu32 "] [%s]: ", info.tm_year + 1900, info.tm_mon + 1, info.tm_mday, info.tm_hour, info.tm_min, info.tm_sec, GetCurrentThreadId(), (level >= nLvlStrs) ? "UNKNOWN" : lvlStrs[level]);
 	stringAppend(&str, msg);
 	uv_mutex_lock(&this->mtx);
 	for(size_t i = 0; i < vectorSize(&this->sinks); i++) {

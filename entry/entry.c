@@ -1,4 +1,5 @@
 #include "entry/common.h"
+#include "engine/engine.h"
 
 int main(int argc, char **args) {
 	staticInit();
@@ -6,7 +7,9 @@ int main(int argc, char **args) {
 		printf("Another instance detected!\n");
 	} else {
 		staticLoggerInit();
-		//TODO:
+		staticEngineInit();
+		engineRun(&staticEngine);
+		staticEngineFree();
 		staticLoggerFree();
 		procEventFree();
 	}

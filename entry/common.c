@@ -1,5 +1,6 @@
 #include "entry/common.h"
 #include "logger/logger.h"
+#include "engine/engine.h"
 
 void afail(const char *file, int line) {
 	string str; stringCtor(&str);
@@ -27,7 +28,7 @@ int localtime_r(time_t *stamp, struct tm *info) {
 	uv_mutex_lock(&mtxLocalTime);
 	struct tm *new = localtime(stamp);
 	int rst = 0;
-	if(new) rst = -1;
+	if(!new) rst = -1;
 	else memcpy(info, new, sizeof *info);
 	uv_mutex_unlock(&mtxLocalTime);
 	return rst;
@@ -74,5 +75,15 @@ int procEventInit() {
 
 void procEventFree() {
 	if(!CloseHandle(procEvent)) FAIL()
+}
+
+engine staticEngine;
+
+void staticEngineInit() {
+	engineCtor(&staticEngine);
+}
+
+void staticEngineFree() {
+	objectDtorVirtual(&staticEngine.superObject);
 }
 
