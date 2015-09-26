@@ -1,6 +1,12 @@
 #ifndef ENTRY_COMMON_H
 #define ENTRY_COMMON_H
 
+#ifdef DEBUG
+#define DEBUG_VAL 1
+#else
+#define DEBUG_VAL 0
+#endif
+
 #include <uv.h>
 #undef RB_RED
 #undef RB_BLACK
@@ -15,6 +21,10 @@ void afail(const char *file, int line);
 void staticInit();
 void staticFree();
 int localtime_r(time_t *stamp, struct tm *info);
+
+extern struct logger staticLogger;
+void staticLoggerInit();
+void staticLoggerFree();
 
 #endif
 

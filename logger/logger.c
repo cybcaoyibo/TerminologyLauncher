@@ -52,7 +52,9 @@ void loggerLog(logger *this, uint8_t level, string *msg) {
 	uv_mutex_lock(&this->mtx);
 	for(size_t i = 0; i < vectorSize(&this->sinks); i++) {
 		loggerSink *now = *vectorDereference(&this->sinks, i);
-		now->VT->addLine(now, &str);
+		if(level >= now->minLevel) {
+			now->VT->addLine(now, &str);
+		}
 	}
 	uv_mutex_unlock(&this->mtx);
 	dtorUtil(string, &str);
@@ -76,5 +78,43 @@ void loggerLogF(logger *this, uint8_t level, const char *fmt, ...) {
 	loggerLog(this,level, &tmp);
 	dtorUtil(string, &tmp);
 	va_end(args);
+}
+
+static void loggerSinkStdoutAddLine(struct loggerSink *this, string *str) {
+	fwrite(stringData(str), stringSize(str), 1, stdout);
+	putchar('\n');
+	fflush(stdout);
+}
+
+void loggerSinkStdoutCtor(loggerSink *this) {
+	objectCtor(&this->superObject);
+	this->superObject.base = this;
+	static loggerSinkVT VT = {.addLine = &loggerSinkStdoutAddLine};
+	this->VT = &VT;
+}
+
+static void loggerSinkFileDtor(object *th) {
+	loggerSinkFile *this = downCastUtil(loggerSinkFile, superLoggerSink, downCastUtil(loggerSink, superObject, th));
+	if(this->fp) fclose(this->fp);
+	objectDtorSpecial(th);
+}
+
+static void loggerSinkFileAddLine(struct loggerSink *th, string *str) {
+	loggerSinkFile *this = downCastUtil(loggerSinkFile, superLoggerSink, th);
+	if(this->fp) {
+		fwrite(stringData(str), stringSize(str), 1, this->fp);
+		putc('\n', this->fp);
+		fflush(this->fp);
+	}
+}
+
+void loggerSinkFileCtor(loggerSinkFile *this, const char *fn) {
+	objectCtor(&this->superLoggerSink.superObject);
+	this->superLoggerSink.superObject.base = this;
+	static loggerSinkVT _VT1 = {.addLine = &loggerSinkFileAddLine};
+	this->superLoggerSink.VT = &_VT1;
+	static objectVT _VT2 = {.dtor = &loggerSinkFileDtor};
+	this->superLoggerSink.superObject.VT = &_VT2;
+	this->fp = fopen(fn, "a");
 }
 

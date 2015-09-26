@@ -25,6 +25,15 @@ void loggerAddSink(logger *this, loggerSink *sink, uint8_t minLevel);
 void loggerLog(logger *this, uint8_t level, string *str);
 void loggerLogF(logger *this, uint8_t level, const char *fmt, ...);
 
+void loggerSinkStdoutCtor(loggerSink *this);
+
+typedef struct loggerSinkFile {
+	FILE *fp;
+	loggerSink superLoggerSink;
+} loggerSinkFile;
+
+void loggerSinkFileCtor(loggerSinkFile *this, const char *fn);
+
 #define LOG_VERBOSE 0
 #define LOG_DEBUG 1
 #define LOG_INFO 2
