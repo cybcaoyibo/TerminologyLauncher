@@ -15,8 +15,8 @@
 #include "../csl2/misc.h"
 #include <inttypes.h>
 
-void fatal(const char *msg);
-void afail(const char *file, int line);
+void fatal(const char *msg) __attribute__((noreturn));
+void afail(const char *file, int line) __attribute__((noreturn));
 #define FAIL() {afail(__FILE__, __LINE__);}
 void staticInit();
 void staticFree();
@@ -25,6 +25,9 @@ int localtime_r(time_t *stamp, struct tm *info);
 extern struct logger staticLogger;
 void staticLoggerInit();
 void staticLoggerFree();
+
+int procEventInit();
+void procEventFree();
 
 #endif
 

@@ -48,12 +48,31 @@ void staticLoggerInit() {
 	loggerSink *sinkStdout = malloc(sizeof *sinkStdout);
 	loggerSinkStdoutCtor(sinkStdout);
 	loggerSinkFile *sinkFile = malloc(sizeof *sinkFile);
-	loggerSinkFileCtor(sinkFile, "TerminologyLauncher.log");
+	loggerSinkFileCtor(sinkFile, "log.txt");
 	loggerAddSink(&staticLogger, sinkStdout, DEBUG_VAL ? LOG_DEBUG : LOG_INFO);
 	loggerAddSink(&staticLogger, &sinkFile->superLoggerSink, DEBUG_VAL ? LOG_DEBUG : LOG_INFO);
 }
 
 void staticLoggerFree() {
 	objectDtorVirtual(&staticLogger.superObject);
+}
+
+static HANDLE procEvent;
+
+int procEventInit() {
+	procEvent = CreateEventA(0, 0, 0, "TerminologyLauncher/procEvent");
+	DWORD err = GetLastError();
+	if(!procEvent) FAIL()
+	if(err == ERROR_SUCCESS) return 0;
+	if(err == ERROR_ALREADY_EXISTS) {
+		if(!SetEvent(procEvent)) FAIL()
+		if(!CloseHandle(procEvent)) FAIL()
+		return -1;
+	}
+	FAIL()
+}
+
+void procEventFree() {
+	if(!CloseHandle(procEvent)) FAIL()
 }
 
